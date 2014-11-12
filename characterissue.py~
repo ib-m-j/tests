@@ -1,0 +1,4 @@
+
+f = file('characterissue.txt','r')
+txt = f.read()
+print(txt)

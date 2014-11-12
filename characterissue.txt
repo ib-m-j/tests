@@ -1,0 +1,4 @@
+this is a test text æ
+and one more ø
+and yet one å
+ÆØÅ
