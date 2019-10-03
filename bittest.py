@@ -60,3 +60,9 @@ print(hash)
 
 res = readhash(hash)
 print(res)
+
+# ;;; Local Variables: ***
+# ;;; compile-command: "bittest.py" ***
+# ;;; end: ***
+
+

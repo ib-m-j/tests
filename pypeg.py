@@ -1,4 +1,5 @@
 from pypeg2 import *
+import re
 
 class State:
     def __init__(self, parent, type):
@@ -18,6 +19,8 @@ class State:
         while len(self.input) > 0:
             res = parse(self.input, First1)
             #print('\n',inp)
+            print(res)
+            print(res.__dict__)
             if 'token' in res.__dict__.keys():
                 print('processing', res.token, level)
                 child = State(self, res.token)
@@ -26,7 +29,7 @@ class State:
                 self.states.append(child)
             elif 'basic' in res.__dict__.keys():
                 self.states.append((res.basic.name,res.basic.tagtype,
-                                   res.basic.action))
+                                    res.basic.action, res.basic.parameter))
                 self.input = res.rest
             elif 'endaction' in res.__dict__.keys():
                 self.endactions.append((res.endaction.name,
@@ -61,24 +64,24 @@ class TagType(Keyword):
     grammar = Enum( K('end'), K('start'))
 
 class Action(Keyword):
-    grammar = Enum( K('skip'), K('inc'), K('finish'))
+    grammar = Enum( K('skip'), K('inc'), K('finish'), K('skip'))
 
 class BasicObject(str):
     grammar = '(', name(),',',attr('tagtype', TagType),',',\
-                            attr('action', Action),')'
+              (attr('action', Action),attr('parameter',optional('(',word),')')),')'
 
 class EndAction(str):
     grammar = '(', name(), ',', attr('tagtype', TagType),')'
 
 class Token(Keyword):
-    grammar = Enum( K('loop'), K('sequence'))
+    grammar = Enum( K('loop'))
 
 class First1(str):
     grammar = [(attr('token', Token), '('), (attr('endaction', EndAction)), \
                (attr('basic',BasicObject)),')'] , attr('rest',restline)
 
 def testParse():
-    inp = 'loop((endtag, end)(tag, start, finish)loop((tag1, end, finish))) sequence((tag2, start, finish)(tag3, end, inc))'
+    inp = 'loop((endtag, end)(tag, start, finish)loop((tag1, end, skip(a)))) (tag2, start, finish)(tag3, end, inc)'
     parseline = inp
     while len(inp) > 0:
         res = parse(inp, First1)
@@ -98,8 +101,8 @@ def testParse():
 
 if __name__ == "__main__":
     #testParse()
-    inp = 'loop((endtag, end)(tag, start, finish)loop((tag1, end, finish))) sequence((tag2, start, finish)(tag3, end, inc))'
-    #inp = 'loop((tag, start, finish)(tag1, end, finish)) sequence((tag2, start, finish)(tag3, end, inc))'
+    inp = 'loop((endtag, end)(tag, start, finish)loop((tag1, end, skip(a))))(tag2, start, finish)(tag3, end, inc)'
+    #inp = 'loop((tag, start, finish)(tag1, end, finish))(tag2, start, finish)(tag3, end, inc))'
     
     top = State(None,'top')
     top.setInput(inp)
