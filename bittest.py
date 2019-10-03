@@ -34,7 +34,6 @@ def makehash(values):
     extra = 0
     for v in values:
         if count == 4:
-            print('{:0>8b}'.format(extra))
             res.append(extra)
             count = 0
             extra = 0
